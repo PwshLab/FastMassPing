@@ -190,7 +190,7 @@ namespace FastMassPing
             Int32 addit = (int)(addressSpace % threadCount);
             Int32 mean = (int)Math.Floor((float)addressSpace / threadCount);
 
-            Console.WriteLine("Searching for addressed with open Port {0} with {1} Threads", port, threadCount);
+            Console.WriteLine("Searching for addresses with open Port {0} with {1} Threads", port, threadCount);
             Console.WriteLine("Pinging from {0} to {1}  ({2} addresses)\n", startAddress.ToString(), endAddress.ToString(), addressSpace);
 
             Queue<string> output = new Queue<string>();
