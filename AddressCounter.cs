@@ -36,18 +36,18 @@ namespace FastMassPing
         {
             byte[] addressBytes = address.GetAddressBytes();
             Array.Reverse(addressBytes);
-            addressBytes = BitConverter.GetBytes(BitConverter.ToUInt32(addressBytes, 0) + increment);
+            addressBytes = BitConverter.GetBytes(BitConverter.ToInt32(addressBytes, 0) + increment);
             Array.Reverse(addressBytes);
             return new IPAddress(addressBytes);
         }
 
-        public static Int64 GetAddressSpace(IPAddress address1, IPAddress address2)
+        public static long GetAddressSpace(IPAddress address1, IPAddress address2)
         {
             byte[] address1Bytes = address1.GetAddressBytes();
             byte[] address2Bytes = address2.GetAddressBytes();
             Array.Reverse(address1Bytes);
             Array.Reverse(address2Bytes);
-            return (Int64)(BitConverter.ToUInt32(address2Bytes, 0) - BitConverter.ToUInt32(address1Bytes, 0));
+            return BitConverter.ToUInt32(address2Bytes, 0) - BitConverter.ToUInt32(address1Bytes, 0);
         }
     }
 
@@ -60,7 +60,7 @@ namespace FastMassPing
         public AddressEnumerator(AddressCounter addressCounter)
         {
             this.addressCounter = addressCounter;
-            currentPosition = 0;
+            Reset();
         }
 
         public IPAddress Current => currentAddress;
@@ -75,7 +75,7 @@ namespace FastMassPing
         {
             currentAddress = AddressCounter.IncrementAddress(currentAddress, 1);
             currentPosition++;
-            return currentPosition < addressCounter.AddressSpace;
+            return currentPosition < addressCounter.AddressSpace - 1;
         }
 
         public void Reset()
