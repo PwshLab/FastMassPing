@@ -236,20 +236,19 @@ namespace FastMassPing
 
         static void PingThread(AddressCounter counter, Int32 port, Int32 timeout, Int32 threadNum, Int32[] status, Queue<string> output)
         {
-            bool online;
+            using ConnectionTester connectionTester = new(port, timeout);
             foreach (IPAddress address in counter)
             {
-                online = TestConnection(address, port, timeout);
-                if (online)
+                ConnectionInformation info = connectionTester.Test(address);
+                if (info.reachable)
                 {
                     lock (output)
                     {
-                        output.Enqueue(address.ToString() + ":" + port.ToString());
+                        output.Enqueue(info.ToString());
                     }
                 }
                 status[threadNum]++;
             }
-            return;
         }
 
         static void MonitorThread(Int64 addressSpace, Int32 threadNum, Int32[] status, Queue<string> output)
@@ -305,28 +304,6 @@ namespace FastMassPing
                     {
                         Console.Title = infoOutput.Dequeue();
                     }
-                }
-            }
-        }
-
-        static bool TestConnection(IPAddress address, Int32 port, Int32 timeout)
-        {
-            using (TcpClient client = new TcpClient())
-            {
-                try
-                {
-                    IAsyncResult result = client.BeginConnect(address, port, null, null);
-                    Stopwatch stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    while (!result.IsCompleted && stopwatch.ElapsedMilliseconds < timeout)
-                    {
-                        Thread.Sleep(1);
-                    }
-                    return client.Connected;
-                }
-                catch
-                {
-                    return false;
                 }
             }
         }
