@@ -7,9 +7,9 @@ namespace FastMassPing
 {
     class AddressCounter : IEnumerable<IPAddress>
     {
-        private IPAddress startAddress;
-        private IPAddress endAddress;
-        private long addressSpace;
+        private readonly IPAddress startAddress;
+        private readonly IPAddress endAddress;
+        private readonly long addressSpace;
 
         public IPAddress FirstAddress => startAddress;
         public IPAddress LastAddress => endAddress;
