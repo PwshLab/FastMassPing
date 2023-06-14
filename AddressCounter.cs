@@ -1,0 +1,87 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Net;
+
+namespace FastMassPing
+{
+    class AddressCounter : IEnumerable<IPAddress>
+    {
+        private IPAddress startAddress;
+        private IPAddress endAddress;
+        private long addressSpace;
+
+        public IPAddress FirstAddress => startAddress;
+        public IPAddress LastAddress => endAddress;
+        public long AddressSpace => addressSpace;
+
+        public AddressCounter(IPAddress startAddress, IPAddress endAddress)
+        {
+            this.startAddress = startAddress;
+            this.endAddress = endAddress;
+            addressSpace = GetAddressSpace(startAddress, endAddress);
+        }
+
+        public IEnumerator<IPAddress> GetEnumerator()
+        {
+            return new AddressEnumerator(this);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public static IPAddress IncrementAddress(IPAddress address, Int32 increment)
+        {
+            byte[] addressBytes = address.GetAddressBytes();
+            Array.Reverse(addressBytes);
+            addressBytes = BitConverter.GetBytes(BitConverter.ToUInt32(addressBytes, 0) + increment);
+            Array.Reverse(addressBytes);
+            return new IPAddress(addressBytes);
+        }
+
+        public static Int64 GetAddressSpace(IPAddress address1, IPAddress address2)
+        {
+            byte[] address1Bytes = address1.GetAddressBytes();
+            byte[] address2Bytes = address2.GetAddressBytes();
+            Array.Reverse(address1Bytes);
+            Array.Reverse(address2Bytes);
+            return (Int64)(BitConverter.ToUInt32(address2Bytes, 0) - BitConverter.ToUInt32(address1Bytes, 0));
+        }
+    }
+
+    class AddressEnumerator : IEnumerator<IPAddress>
+    {
+        private AddressCounter addressCounter;
+        private IPAddress currentAddress;
+        private long currentPosition;
+
+        public AddressEnumerator(AddressCounter addressCounter)
+        {
+            this.addressCounter = addressCounter;
+            currentPosition = 0;
+        }
+
+        public IPAddress Current => currentAddress;
+
+        object IEnumerator.Current => currentAddress;
+
+        public void Dispose()
+        {
+        }
+
+        public bool MoveNext()
+        {
+            currentAddress = AddressCounter.IncrementAddress(currentAddress, 1);
+            currentPosition++;
+            return currentPosition < addressCounter.AddressSpace;
+        }
+
+        public void Reset()
+        {
+            currentAddress = addressCounter.FirstAddress;
+            currentPosition = 0;
+        }
+    }
+}

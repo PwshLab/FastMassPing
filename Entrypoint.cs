@@ -9,13 +9,13 @@ using System.Diagnostics;
 
 namespace FastMassPing
 {
-    class Program
+    class Entrypoint
     {
         static void SendHelp(bool freeLine)
         {
             if (freeLine)
                 Console.WriteLine();
-            Console.WriteLine("FastMassPing.exe            The fastest ping in the west        May contain 'peanuts'");
+            Console.WriteLine("FastMassPing.exe            The fastest ping in the west");
             Console.WriteLine();
             Console.WriteLine("Avaliable Parameters");
             Console.WriteLine("--help           Displays this help");
@@ -179,7 +179,7 @@ namespace FastMassPing
                 }
             }
 
-            Int64 addressSpace = GetAddressSpace(startAddress, endAddress);
+            Int64 addressSpace = AddressCounter.GetAddressSpace(startAddress, endAddress);
             if (addressSpace <= 0)
             {
                 Console.WriteLine("End address cannot be smaller or equal to Start address. Aborting.");
@@ -190,7 +190,7 @@ namespace FastMassPing
             Int32 addit = (int)(addressSpace % threadCount);
             Int32 mean = (int)Math.Floor((float)addressSpace / threadCount);
 
-            Console.WriteLine("Searching for addressed with open Port {0} with {1} Threads", port, threadCount);
+            Console.WriteLine("Searching for addresses with open Port {0} with {1} Threads", port, threadCount);
             Console.WriteLine("Pinging from {0} to {1}  ({2} addresses)\n", startAddress.ToString(), endAddress.ToString(), addressSpace);
 
             Queue<string> output = new Queue<string>();
@@ -207,10 +207,10 @@ namespace FastMassPing
                 if (i < addit)
                     increm = 1;
 
-                threads[i] = new Thread(() => PingThread(currentAddressCopy, IncrementAddress(currentAddressCopy, mean + increm), port, timeout, threadNum, status, output));
+                threads[i] = new Thread(() => PingThread(new AddressCounter(currentAddressCopy, AddressCounter.IncrementAddress(currentAddressCopy, mean + increm)), port, timeout, threadNum, status, output));
                 threads[i].IsBackground = true;
                 threads[i].Start();
-                currentAddress = IncrementAddress(currentAddress, mean + increm);
+                currentAddress = AddressCounter.IncrementAddress(currentAddress, mean + increm);
             }
 
             threads[threadCount] = new Thread(() => MonitorThread(addressSpace, threadCount, status, infoOutput));
@@ -234,21 +234,19 @@ namespace FastMassPing
 
             }
 
-        static void PingThread(IPAddress startAddress, IPAddress endAddress, Int32 port, Int32 timeout, Int32 threadNum, Int32[] status, Queue<string> output)
+        static void PingThread(AddressCounter counter, Int32 port, Int32 timeout, Int32 threadNum, Int32[] status, Queue<string> output)
         {
-            IPAddress currentAddress = startAddress;
             bool online;
-            while (!currentAddress.Equals(endAddress))
+            foreach (IPAddress address in counter)
             {
-                online = TestConnection(currentAddress, port, timeout);
+                online = TestConnection(address, port, timeout);
                 if (online)
                 {
                     lock (output)
                     {
-                        output.Enqueue(currentAddress.ToString() + ":" + port.ToString());
+                        output.Enqueue(address.ToString() + ":" + port.ToString());
                     }
                 }
-                currentAddress = IncrementAddress(currentAddress, 1);
                 status[threadNum]++;
             }
             return;
@@ -331,46 +329,6 @@ namespace FastMassPing
                     return false;
                 }
             }
-        }
-
-        static bool TestConnectionHttp(IPAddress address, Int32 port, Int32 timeout)
-        {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(IPAdressToUri(address, port));
-            request.Timeout = timeout;
-
-            try
-            {
-                request.GetResponse();
-            }
-            catch (Exception exception)
-            {
-
-            }
-            return true;
-            //This might not be possible
-        }
-
-        static Uri IPAdressToUri(IPAddress address, Int32 port)
-        {
-            return new Uri("http://" + address.ToString() + ":" + port + "/");
-        }
-
-        static IPAddress IncrementAddress(IPAddress address, Int32 increment)
-        {
-            byte[] addressBytes = address.GetAddressBytes();
-            Array.Reverse(addressBytes);
-            addressBytes = BitConverter.GetBytes(BitConverter.ToInt32(addressBytes, 0) + increment);
-            Array.Reverse(addressBytes);
-            return new IPAddress(addressBytes);
-        }
-
-        static Int64 GetAddressSpace(IPAddress address1, IPAddress address2)
-        {
-            byte[] address1Bytes = address1.GetAddressBytes();
-            byte[] address2Bytes = address2.GetAddressBytes();
-            Array.Reverse(address1Bytes);
-            Array.Reverse(address2Bytes);
-            return (Int64)(BitConverter.ToUInt32(address2Bytes, 0) - BitConverter.ToUInt32(address1Bytes, 0));
         }
     }
 }
