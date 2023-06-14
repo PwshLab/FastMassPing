@@ -16,7 +16,12 @@
     <PublishTrimmed>false</PublishTrimmed>
     <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
     <StartupObject>FastMassPing.Entrypoint</StartupObject>
+    <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
 </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\Icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
