@@ -9,7 +9,7 @@ namespace FastMassPing
 {
     class ConnectionTester : IDisposable
     {
-        readonly TcpClient tcpClient;
+        TcpClient tcpClient;
         readonly Stopwatch stopwatch;
         readonly int port;
         readonly int timeout;
@@ -24,6 +24,11 @@ namespace FastMassPing
 
         public ConnectionInformation Test(IPAddress address)
         {
+            if (tcpClient.Connected)
+            {
+                tcpClient.Close();
+                tcpClient = new TcpClient();
+            }
             try
             {
                 using CancellationTokenSource cts = new(timeout);
