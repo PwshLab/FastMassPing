@@ -32,7 +32,7 @@ namespace FastMassPing
             return GetEnumerator();
         }
 
-        public static IPAddress IncrementAddress(IPAddress address, Int32 increment)
+        public static IPAddress IncrementAddress(IPAddress address, long increment)
         {
             byte[] addressBytes = address.GetAddressBytes();
             Array.Reverse(addressBytes);
@@ -53,7 +53,7 @@ namespace FastMassPing
 
     class AddressEnumerator : IEnumerator<IPAddress>
     {
-        private AddressCounter addressCounter;
+        private readonly AddressCounter addressCounter;
         private IPAddress currentAddress;
         private long currentPosition;
 
