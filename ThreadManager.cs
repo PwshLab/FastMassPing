@@ -28,6 +28,7 @@ namespace FastMassPing
         public ThreadManager()
         {
             pingThreads = new List<PingThread>();
+            cancellationTokenSource = new CancellationTokenSource();
             addressSpaceSet = false;
             outputSet = false;
             threadConfigurationSet = false;
