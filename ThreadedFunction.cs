@@ -72,9 +72,9 @@ namespace FastMassPing
     {
         private readonly AddressCounter counter;
         private readonly ConnectionTester tester;
-        private long processedCount;
+        private int processedCount;
 
-        public PingThread(IPAddress startAddress, long addressCount, int port, int timeout, Queue<ConnectionInformation> output, CancellationToken token) 
+        public PingThread(IPAddress startAddress, int addressCount, int port, int timeout, Queue<ConnectionInformation> output, CancellationToken token) 
             : base(output, token)
         {
             IPAddress endAddress = AddressCounter.IncrementAddress(startAddress, addressCount);
@@ -104,7 +104,7 @@ namespace FastMassPing
             isActive = false;
         }
 
-        public long GetProcessed()
+        public int GetProcessed()
         {
             return processedCount;
         }
@@ -136,10 +136,10 @@ namespace FastMassPing
                 long processed = 0;
                 pingThreads.ForEach(x => processed += x.GetProcessed());
                 processed = Math.Max(1, processed);
-                TimeSpan elapsedTime = DateTime.Now - beginTime;
-                TimeSpan eta = elapsedTime * ((double)addressSpace / processed) - elapsedTime;
+                TimeSpan elapsedTime = DateTime.Now.Subtract(beginTime);
+                TimeSpan eta = elapsedTime.Multiply((double)addressSpace / processed).Subtract(elapsedTime);
                 string information = String.Format(
-                        "Pinged {0} out of {1} addresses  ( {2} Completed )  T: {3}   ETA: {4}   {5}\r",
+                        "\rPinged {0} out of {1} addresses  ( {2} Completed )  T: {3}   ETA: {4}   {5}",
                         processed, 
                         addressSpace, 
                         ((decimal)processed / addressSpace).ToString("P"), 
@@ -190,7 +190,7 @@ namespace FastMassPing
                 while (!IsCancelled())
                 {
                     ReadLocked(pingOutput, outputWriter.WriteLine);
-                    ReadLocked(monitorOutput, Console.Write);
+                    ReadLocked(monitorOutput, (x) => Console.Write(x[..Math.Min(Console.WindowWidth, x.Length)]));
                 }
             }
             else
