@@ -29,6 +29,8 @@ namespace FastMassPing
         {
             pingThreads = new List<PingThread>();
             cancellationTokenSource = new CancellationTokenSource();
+            pingOutput = new Queue<ConnectionInformation>();
+            monitorOutput = new Queue<string>();
             addressSpaceSet = false;
             outputSet = false;
             threadConfigurationSet = false;
@@ -60,11 +62,11 @@ namespace FastMassPing
             if (threadCount < 0)
                 return false;
 
-            long mean = (long)Math.Floor((double)addressSpace / threadCount);
-            long addit = addressSpace % threadCount;
+            int mean = (int)Math.Floor((double)addressSpace / threadCount);
+            int addit = (int)(addressSpace % threadCount);
             for (int i = 0; i < threadCount; i++)
             {
-                long threadAddressSpace = mean + i < addit ? 1 : 0;
+                int threadAddressSpace = mean + (i < addit ? 1 : 0);
                 PingThread thread = new(startAddress, threadAddressSpace, port, timeout, pingOutput, cancellationTokenSource.Token);
                 pingThreads.Add(thread);
             }
