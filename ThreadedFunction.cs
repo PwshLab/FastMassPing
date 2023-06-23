@@ -68,13 +68,13 @@ namespace FastMassPing
         }
     }
 
-    internal class ThreadedPing : ThreadedFunction<ConnectionInformation>
+    internal class PingThread : ThreadedFunction<ConnectionInformation>
     {
         private readonly AddressCounter counter;
         private readonly ConnectionTester tester;
         private long processedCount;
 
-        public ThreadedPing(IPAddress startAddress, long addressCount, int port, int timeout, Queue<ConnectionInformation> output, CancellationToken token) 
+        public PingThread(IPAddress startAddress, long addressCount, int port, int timeout, Queue<ConnectionInformation> output, CancellationToken token) 
             : base(output, token)
         {
             IPAddress endAddress = AddressCounter.IncrementAddress(startAddress, addressCount);
@@ -112,11 +112,11 @@ namespace FastMassPing
 
     internal class MonitorThread : ThreadedFunction<string>
     {
-        private readonly List<ThreadedPing> pingThreads;
+        private readonly List<PingThread> pingThreads;
         private readonly long addressSpace;
         private readonly DateTime beginTime;
 
-        public MonitorThread(List<ThreadedPing> pingThreads, long addressSpace, Queue<string> output, CancellationToken token)
+        public MonitorThread(List<PingThread> pingThreads, long addressSpace, Queue<string> output, CancellationToken token)
             : base(output, token)
         {
             this.pingThreads = pingThreads;
