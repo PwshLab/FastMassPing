@@ -68,7 +68,7 @@ namespace FastMassPing
         }
     }
 
-    class ThreadedPing : ThreadedFunction<ConnectionInformation>
+    internal class ThreadedPing : ThreadedFunction<ConnectionInformation>
     {
         private readonly AddressCounter counter;
         private readonly ConnectionTester tester;
@@ -110,7 +110,7 @@ namespace FastMassPing
         }
     }
 
-    class MonitorThread : ThreadedFunction<string>
+    internal class MonitorThread : ThreadedFunction<string>
     {
         private readonly List<ThreadedPing> pingThreads;
         private readonly long addressSpace;
@@ -153,7 +153,7 @@ namespace FastMassPing
         }
     }
 
-    class OutputThread : ThreadedFunction<string>
+    internal class OutputThread : ThreadedFunction<string>
     {
         private readonly Queue<ConnectionInformation> pingOutput;
         private readonly Queue<string> monitorOutput;

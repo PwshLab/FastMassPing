@@ -5,7 +5,7 @@ using System.Net;
 
 namespace FastMassPing
 {
-    class AddressCounter : IEnumerable<IPAddress>
+    internal class AddressCounter : IEnumerable<IPAddress>
     {
         private readonly IPAddress startAddress;
         private readonly IPAddress endAddress;
@@ -51,7 +51,7 @@ namespace FastMassPing
         }
     }
 
-    class AddressEnumerator : IEnumerator<IPAddress>
+    internal class AddressEnumerator : IEnumerator<IPAddress>
     {
         private readonly AddressCounter addressCounter;
         private IPAddress currentAddress;

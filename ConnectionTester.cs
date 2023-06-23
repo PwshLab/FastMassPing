@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FastMassPing
 {
-    class ConnectionTester : IDisposable
+    internal class ConnectionTester : IDisposable
     {
         TcpClient tcpClient;
         readonly Stopwatch stopwatch;
@@ -49,12 +49,12 @@ namespace FastMassPing
         }
     }
 
-    struct ConnectionInformation
+    internal readonly struct ConnectionInformation
     {
-        public IPAddress address;
-        public int port;
-        public bool reachable;
-        public int ping;
+        public readonly IPAddress address;
+        public readonly int port;
+        public readonly bool reachable;
+        public readonly int ping;
 
         public ConnectionInformation(IPAddress address, int port, bool reachable, int ping)
         {
